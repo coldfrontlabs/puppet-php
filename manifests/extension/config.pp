@@ -4,7 +4,7 @@
 #
 # [*ensure*]
 #   The ensure of the package to install
-#   Could be "latest", "installed" or a pinned version
+#   Could be "latest", "installed" or a pinned version. "purged" or "absent" to remove.
 #
 # [*provider*]
 #   The provider used to install the package
@@ -90,9 +90,18 @@ define php::extension::config (
   }
 
   $config_root_ini = pick_default($::php::config_root_ini, $::php::params::config_root_ini)
-  ::php::config { $title:
-    file   => "${config_root_ini}/${ini_prefix}${ini_name}.ini",
-    config => $final_settings,
+  
+  if ('absent' == $ensure or 'purged' == $ensure) {
+    ::php::config { $title:
+      file   => "${config_root_ini}/${ini_prefix}${ini_name}.ini",
+      config => undef,
+    }  
+  }
+  else {
+    ::php::config { $title:
+      file   => "${config_root_ini}/${ini_prefix}${ini_name}.ini",
+      config => $final_settings,
+    }
   }
 
   # Ubuntu/Debian systems use the mods-available folder. We need to enable

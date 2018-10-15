@@ -19,14 +19,21 @@
 #
 define php::config(
   Stdlib::Absolutepath $file,
-  Hash $config
+  Optional[Hash] $config
 ) {
 
   if $caller_module_name != $module_name {
     warning('php::config is private')
   }
 
-  create_resources(::php::config::setting, to_hash_settings($config, $file), {
-    file => $file
-  })
+  if (undef != $config) {
+    create_resources(::php::config::setting, to_hash_settings($config, $file), {
+      file => $file
+    })
+  }
+  else {
+    create_resources(::php::config::setting, to_hash_settings({config => undef}, $file), {
+      file => $file
+    })    
+  }
 }
